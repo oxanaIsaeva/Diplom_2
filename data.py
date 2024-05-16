@@ -52,3 +52,7 @@ class Data:
     RESPONSE_CREATE_ORDER_NEGATIVE = {"success": False, "message": "Ingredient ids must be provided"}
 
     RESPONSE_GET_ORDER_NEGATIVE = {"success": False, "message": "You should be authorised"}
+
+    INGREDIENTS = {
+        "ingredients": ["61c0c5a71d1f82001bdaaa6d", "61c0c5a71d1f82001bdaaa71", "61c0c5a71d1f82001bdaaa75"]
+    }

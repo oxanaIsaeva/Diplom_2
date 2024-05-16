@@ -2,26 +2,17 @@ import allure
 import pytest
 import requests
 from data import Data
+from conftest import create_new_user
 
 
 class TestCreateUser:
-    accessToken = ''
 
     @allure.title('Проверка создания уникального пользователя')
-    @allure.description('Запрос возвращает код ответа 200, и содержит "accessToken" и "refreshToken" в ответе')
-    def test_create_user_positive(self):
-        payload = Data.CREATE_USER
-        response = requests.post(f'{Data.URL}/api/auth/register', data=payload)
-        format_response = response.json()
-        TestCreateUser.accessToken = format_response["accessToken"]
+    @allure.description('Запрос возвращает код ответа 200, и содержит "success" в ответе')
+    def test_create_user_positive(self, create_new_user):
+        response = create_new_user
 
-        assert (response.status_code == 200 and 'accessToken' in format_response.keys() and
-                'refreshToken' in format_response.keys())
-
-    @classmethod
-    def teardown_class(cls):
-        requests.delete(f'{Data.URL}/api/auth/user',
-                        headers={"Authorization": TestCreateUser.accessToken})
+        assert response[1].status_code == 200 and response[1].json().get("success") == True
 
     @allure.title('Проверка создания пользователя, который уже зарегистрирован')
     @allure.description('Запрос возвращает код ответа 403 и ответ {"success": False, "message": "User already exists"}')

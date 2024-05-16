@@ -2,24 +2,18 @@ import allure
 import pytest
 import requests
 from data import Data
+from conftest import create_new_user
 
 
 class TestChangeUserData:
-    accessToken = ''
-
-    @classmethod
-    def setup_class(cls):
-        payload = Data.CREATE_USER
-        response = requests.post(f'{Data.URL}/api/auth/register', data=payload)
-        format_response = response.json()
-        TestChangeUserData.accessToken = format_response["accessToken"]
 
     @allure.title('Проверка изменения электронной почты пользователя с авторизацией')
     @allure.description('Запрос возвращает код ответа 200, и содержит "success" и "user" в ответе')
-    def test_change_user_email(self):
+    def test_change_user_email(self, create_new_user):
+        token = create_new_user[1].json()["accessToken"]
         payload = Data.USER_CHANGE_EMAIL
         response = requests.patch(f'{Data.URL}/api/auth/user',
-                                  headers={"Authorization": TestChangeUserData.accessToken},
+                                  headers={"Authorization": token},
                                   data=payload)
         format_response = response.json()
 
@@ -28,10 +22,11 @@ class TestChangeUserData:
 
     @allure.title('Проверка изменения имени пользователя с авторизацией')
     @allure.description('Запрос возвращает код ответа 200, и содержит "success" и "user" в ответе')
-    def test_change_user_name(self):
+    def test_change_user_name(self, create_new_user):
+        token = create_new_user[1].json()["accessToken"]
         payload = Data.USER_CHANGE_NAME
         response = requests.patch(f'{Data.URL}/api/auth/user',
-                                  headers={"Authorization": TestChangeUserData.accessToken},
+                                  headers={"Authorization": token},
                                   data=payload)
         format_response = response.json()
 
@@ -40,10 +35,11 @@ class TestChangeUserData:
 
     @allure.title('Проверка изменения пароля пользователя с авторизацией')
     @allure.description('Запрос возвращает код ответа 200, и содержит "success" и "user" в ответе')
-    def test_change_user_password(self):
+    def test_change_user_password(self, create_new_user):
+        token = create_new_user[1].json()["accessToken"]
         payload = Data.USER_CHANGE_PASSWORD
         response = requests.patch(f'{Data.URL}/api/auth/user',
-                                  headers={"Authorization": TestChangeUserData.accessToken},
+                                  headers={"Authorization": token},
                                   data=payload)
         format_response = response.json()
 
@@ -72,16 +68,12 @@ class TestChangeUserData:
     @allure.title('Проверка изменения электронной почты пользователя на почту, которая уже используется')
     @allure.description('Запрос возвращает код ответа 403, и {"success": False, "message": "User with such email '
                         'already exists"} в ответе')
-    def test_change_user_email_negative(self):
+    def test_change_user_email_negative(self, create_new_user):
+        token = create_new_user[1].json()["accessToken"]
         payload = Data.USER_CHANGE_EMAIL_NEGATIVE
         response = requests.patch(f'{Data.URL}/api/auth/user',
-                                  headers={"Authorization": TestChangeUserData.accessToken},
+                                  headers={"Authorization": token},
                                   data=payload)
         format_response = response.json()
 
         assert (response.status_code == 403 and format_response == Data.RESPONSE_UPDATE_USER_EMAIL_NEGATIVE)
-
-    @classmethod
-    def teardown_class(cls):
-        requests.delete(f'{Data.URL}/api/auth/user',
-                        headers={"Authorization": TestChangeUserData.accessToken})
